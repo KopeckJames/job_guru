@@ -4,12 +4,13 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import MockInterview from '../components/MockInterview';
 import { toast } from 'react-toastify';
+import Layout from '../components/Layout';
 
 export default function MockInterviewPage() {
   const router = useRouter();
   const [selectedType, setSelectedType] = useState(null);
   const [interviewConfig, setInterviewConfig] = useState(null);
-  
+
   const interviewTypes = [
     {
       id: 'general',
@@ -54,10 +55,10 @@ export default function MockInterviewPage() {
       difficulty: 'Varies'
     }
   ];
-  
+
   const handleSelectType = (type) => {
     setSelectedType(type);
-    
+
     // In a real implementation, this would fetch interview questions from the API
     // For now, we'll just set a mock interview ID
     setInterviewConfig({
@@ -66,56 +67,25 @@ export default function MockInterviewPage() {
       title: type.title
     });
   };
-  
+
   const handleCompleteInterview = (responses) => {
     // In a real implementation, this would save the interview results to the API
     toast.success('Interview completed and saved!');
     router.push('/dashboard');
   };
-  
+
   return (
-    <div className="min-h-screen bg-gray-50">
+    <Layout>
       <Head>
         <title>Mock Interview | Job Guru</title>
         <meta name="description" content="Practice with AI-powered mock interviews" />
       </Head>
-      
-      <header className="bg-white shadow-sm">
-        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <Link href="/" className="flex items-center">
-            <h1 className="text-2xl font-bold text-blue-600">Job Guru</h1>
-          </Link>
-          
-          <nav className="hidden md:flex space-x-8">
-            <Link href="/dashboard" className="text-gray-600 hover:text-blue-600">
-              Dashboard
-            </Link>
-            <Link href="/interview-copilot" className="text-gray-600 hover:text-blue-600">
-              Interview Copilot
-            </Link>
-            <Link href="/resumes" className="text-gray-600 hover:text-blue-600">
-              Resumes
-            </Link>
-            <Link href="/questions" className="text-gray-600 hover:text-blue-600">
-              Questions
-            </Link>
-          </nav>
-          
-          <div className="flex items-center space-x-4">
-            <Link href="/profile" className="text-gray-600 hover:text-blue-600">
-              Profile
-            </Link>
-          </div>
-        </div>
-      </header>
-      
-      <main className="container mx-auto px-4 py-8">
         <h1 className="text-3xl font-bold text-gray-800 mb-8">AI Mock Interview</h1>
-        
+
         {!interviewConfig ? (
           <div className="bg-white rounded-lg shadow-md p-6">
             <h2 className="text-xl font-semibold text-gray-800 mb-6">Select Interview Type</h2>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {interviewTypes.map((type) => (
                 <div
@@ -141,7 +111,7 @@ export default function MockInterviewPage() {
                 </div>
               ))}
             </div>
-            
+
             {selectedType && (
               <div className="mt-8 flex justify-end">
                 <button
@@ -171,14 +141,13 @@ export default function MockInterviewPage() {
                 Change Interview Type
               </button>
             </div>
-            
+
             <MockInterview
               interviewId={interviewConfig.id}
               onComplete={handleCompleteInterview}
             />
           </div>
         )}
-      </main>
-    </div>
+    </Layout>
   );
 }

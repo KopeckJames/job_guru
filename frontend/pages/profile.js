@@ -5,6 +5,7 @@ import { useRouter } from 'next/router';
 import { useForm } from 'react-hook-form';
 import { authAPI } from '../lib/api';
 import { toast } from 'react-toastify';
+import { useAuth } from '../lib/authContext';
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -12,60 +13,48 @@ export default function ProfilePage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const { register, handleSubmit, setValue, formState: { errors } } = useForm();
-  
-  // Mock user data
+  const { logout, user } = useAuth();
+
+  // Use user data from auth context
   useEffect(() => {
-    // In a real implementation, this would fetch the user profile from the API
-    // const fetchProfile = async () => {
-    //   try {
-    //     const response = await authAPI.getProfile();
-    //     const userData = response.data;
-    //     
-    //     // Set form values
-    //     setValue('firstName', userData.first_name);
-    //     setValue('lastName', userData.last_name);
-    //     setValue('email', userData.email);
-    //     setValue('phone', userData.phone_number);
-    //     setValue('location', userData.location);
-    //     setValue('jobTitle', userData.job_title);
-    //     setValue('company', userData.company);
-    //     setValue('bio', userData.bio);
-    //     setValue('linkedinUrl', userData.linkedin_url);
-    //     setValue('githubUrl', userData.github_url);
-    //     setValue('websiteUrl', userData.website_url);
-    //     
-    //     setIsLoading(false);
-    //   } catch (error) {
-    //     console.error('Error fetching profile:', error);
-    //     toast.error('Failed to load profile');
-    //     setIsLoading(false);
-    //   }
-    // };
-    // 
-    // fetchProfile();
-    
-    // Mock data
-    setTimeout(() => {
-      setValue('firstName', 'John');
-      setValue('lastName', 'Doe');
-      setValue('email', 'john@example.com');
-      setValue('phone', '(123) 456-7890');
-      setValue('location', 'San Francisco, CA');
-      setValue('jobTitle', 'Software Engineer');
-      setValue('company', 'Tech Company');
-      setValue('bio', 'Experienced software engineer with a passion for building user-friendly applications.');
-      setValue('linkedinUrl', 'https://linkedin.com/in/johndoe');
-      setValue('githubUrl', 'https://github.com/johndoe');
-      setValue('websiteUrl', 'https://johndoe.com');
-      
+    if (user) {
+      setValue('firstName', user.firstName || 'John');
+      setValue('lastName', user.lastName || 'Doe');
+      setValue('email', user.email || 'john@example.com');
+      setValue('phone', user.phone || '(123) 456-7890');
+      setValue('location', user.location || 'San Francisco, CA');
+      setValue('jobTitle', user.jobTitle || 'Software Engineer');
+      setValue('company', user.company || 'Tech Company');
+      setValue('bio', user.bio || 'Experienced software engineer with a passion for building user-friendly applications.');
+      setValue('linkedinUrl', user.linkedinUrl || 'https://linkedin.com/in/johndoe');
+      setValue('githubUrl', user.githubUrl || 'https://github.com/johndoe');
+      setValue('websiteUrl', user.websiteUrl || 'https://johndoe.com');
+
       setIsLoading(false);
-    }, 1000);
-  }, [setValue]);
-  
+    } else {
+      // If no user, use mock data
+      setTimeout(() => {
+        setValue('firstName', 'John');
+        setValue('lastName', 'Doe');
+        setValue('email', 'john@example.com');
+        setValue('phone', '(123) 456-7890');
+        setValue('location', 'San Francisco, CA');
+        setValue('jobTitle', 'Software Engineer');
+        setValue('company', 'Tech Company');
+        setValue('bio', 'Experienced software engineer with a passion for building user-friendly applications.');
+        setValue('linkedinUrl', 'https://linkedin.com/in/johndoe');
+        setValue('githubUrl', 'https://github.com/johndoe');
+        setValue('websiteUrl', 'https://johndoe.com');
+
+        setIsLoading(false);
+      }, 500);
+    }
+  }, [setValue, user]);
+
   const onSubmit = async (data) => {
     try {
       setIsSaving(true);
-      
+
       // In a real implementation, this would call the API
       // await authAPI.updateProfile({
       //   first_name: data.firstName,
@@ -79,10 +68,10 @@ export default function ProfilePage() {
       //   github_url: data.githubUrl,
       //   website_url: data.websiteUrl
       // });
-      
+
       // Mock successful update
       await new Promise(resolve => setTimeout(resolve, 1000));
-      
+
       toast.success('Profile updated successfully!');
       setIsSaving(false);
     } catch (error) {
@@ -91,55 +80,21 @@ export default function ProfilePage() {
       setIsSaving(false);
     }
   };
-  
+
   const handleLogout = () => {
-    // Clear local storage
-    localStorage.removeItem('token');
-    
-    // Redirect to login page
-    router.push('/login');
+    // Use logout function from auth context
+    logout();
     toast.success('Logged out successfully');
   };
-  
+
   return (
-    <div className="min-h-screen bg-gray-50">
+    <Layout>
       <Head>
         <title>Profile | Job Guru</title>
         <meta name="description" content="Manage your profile settings" />
       </Head>
-      
-      <header className="bg-white shadow-sm">
-        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <Link href="/" className="flex items-center">
-            <h1 className="text-2xl font-bold text-blue-600">Job Guru</h1>
-          </Link>
-          
-          <nav className="hidden md:flex space-x-8">
-            <Link href="/dashboard" className="text-gray-600 hover:text-blue-600">
-              Dashboard
-            </Link>
-            <Link href="/interview-copilot" className="text-gray-600 hover:text-blue-600">
-              Interview Copilot
-            </Link>
-            <Link href="/resumes" className="text-gray-600 hover:text-blue-600">
-              Resumes
-            </Link>
-            <Link href="/questions" className="text-gray-600 hover:text-blue-600">
-              Questions
-            </Link>
-          </nav>
-          
-          <div className="flex items-center space-x-4">
-            <Link href="/profile" className="text-blue-600 font-medium">
-              Profile
-            </Link>
-          </div>
-        </div>
-      </header>
-      
-      <main className="container mx-auto px-4 py-8">
         <h1 className="text-3xl font-bold text-gray-800 mb-8">Profile Settings</h1>
-        
+
         <div className="bg-white rounded-lg shadow-md overflow-hidden">
           <div className="flex border-b border-gray-200">
             <button
@@ -173,7 +128,7 @@ export default function ProfilePage() {
               Preferences
             </button>
           </div>
-          
+
           {isLoading ? (
             <div className="flex justify-center py-12">
               <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
@@ -197,7 +152,7 @@ export default function ProfilePage() {
                       </button>
                     </div>
                   </div>
-                  
+
                   <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                     <div>
                       <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 mb-1">
@@ -213,7 +168,7 @@ export default function ProfilePage() {
                         <p className="mt-1 text-sm text-red-600">{errors.firstName.message}</p>
                       )}
                     </div>
-                    
+
                     <div>
                       <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 mb-1">
                         Last Name
@@ -229,7 +184,7 @@ export default function ProfilePage() {
                       )}
                     </div>
                   </div>
-                  
+
                   <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                     <div>
                       <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
@@ -246,7 +201,7 @@ export default function ProfilePage() {
                         Email cannot be changed. Contact support for assistance.
                       </p>
                     </div>
-                    
+
                     <div>
                       <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
                         Phone Number
@@ -259,7 +214,7 @@ export default function ProfilePage() {
                       />
                     </div>
                   </div>
-                  
+
                   <div>
                     <label htmlFor="location" className="block text-sm font-medium text-gray-700 mb-1">
                       Location
@@ -272,7 +227,7 @@ export default function ProfilePage() {
                       {...register('location')}
                     />
                   </div>
-                  
+
                   <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                     <div>
                       <label htmlFor="jobTitle" className="block text-sm font-medium text-gray-700 mb-1">
@@ -285,7 +240,7 @@ export default function ProfilePage() {
                         {...register('jobTitle')}
                       />
                     </div>
-                    
+
                     <div>
                       <label htmlFor="company" className="block text-sm font-medium text-gray-700 mb-1">
                         Company
@@ -298,7 +253,7 @@ export default function ProfilePage() {
                       />
                     </div>
                   </div>
-                  
+
                   <div>
                     <label htmlFor="bio" className="block text-sm font-medium text-gray-700 mb-1">
                       Bio
@@ -311,10 +266,10 @@ export default function ProfilePage() {
                       {...register('bio')}
                     />
                   </div>
-                  
+
                   <div>
                     <h3 className="text-lg font-medium text-gray-800 mb-4">Social Links</h3>
-                    
+
                     <div className="space-y-4">
                       <div>
                         <label htmlFor="linkedinUrl" className="block text-sm font-medium text-gray-700 mb-1">
@@ -328,7 +283,7 @@ export default function ProfilePage() {
                           {...register('linkedinUrl')}
                         />
                       </div>
-                      
+
                       <div>
                         <label htmlFor="githubUrl" className="block text-sm font-medium text-gray-700 mb-1">
                           GitHub URL
@@ -341,7 +296,7 @@ export default function ProfilePage() {
                           {...register('githubUrl')}
                         />
                       </div>
-                      
+
                       <div>
                         <label htmlFor="websiteUrl" className="block text-sm font-medium text-gray-700 mb-1">
                           Personal Website
@@ -356,7 +311,7 @@ export default function ProfilePage() {
                       </div>
                     </div>
                   </div>
-                  
+
                   <div className="flex justify-end">
                     <button
                       type="submit"
@@ -368,12 +323,12 @@ export default function ProfilePage() {
                   </div>
                 </form>
               )}
-              
+
               {activeTab === 'account' && (
                 <div className="space-y-8">
                   <div>
                     <h3 className="text-lg font-medium text-gray-800 mb-4">Change Password</h3>
-                    
+
                     <form className="space-y-4">
                       <div>
                         <label htmlFor="currentPassword" className="block text-sm font-medium text-gray-700 mb-1">
@@ -385,7 +340,7 @@ export default function ProfilePage() {
                           className="input-field"
                         />
                       </div>
-                      
+
                       <div>
                         <label htmlFor="newPassword" className="block text-sm font-medium text-gray-700 mb-1">
                           New Password
@@ -396,7 +351,7 @@ export default function ProfilePage() {
                           className="input-field"
                         />
                       </div>
-                      
+
                       <div>
                         <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-1">
                           Confirm New Password
@@ -407,7 +362,7 @@ export default function ProfilePage() {
                           className="input-field"
                         />
                       </div>
-                      
+
                       <div className="flex justify-end">
                         <button
                           type="submit"
@@ -418,10 +373,10 @@ export default function ProfilePage() {
                       </div>
                     </form>
                   </div>
-                  
+
                   <div className="border-t border-gray-200 pt-8">
                     <h3 className="text-lg font-medium text-gray-800 mb-4">Account Actions</h3>
-                    
+
                     <div className="space-y-4">
                       <button
                         onClick={handleLogout}
@@ -429,7 +384,7 @@ export default function ProfilePage() {
                       >
                         Log Out
                       </button>
-                      
+
                       <button
                         className="px-6 py-2 border border-red-300 text-red-600 rounded-md hover:bg-red-50 transition-colors"
                       >
@@ -439,12 +394,12 @@ export default function ProfilePage() {
                   </div>
                 </div>
               )}
-              
+
               {activeTab === 'preferences' && (
                 <div className="space-y-8">
                   <div>
                     <h3 className="text-lg font-medium text-gray-800 mb-4">Notification Preferences</h3>
-                    
+
                     <div className="space-y-4">
                       <div className="flex items-center justify-between">
                         <div>
@@ -456,7 +411,7 @@ export default function ProfilePage() {
                           <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
                         </label>
                       </div>
-                      
+
                       <div className="flex items-center justify-between">
                         <div>
                           <h4 className="font-medium text-gray-700">Interview Reminders</h4>
@@ -467,7 +422,7 @@ export default function ProfilePage() {
                           <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
                         </label>
                       </div>
-                      
+
                       <div className="flex items-center justify-between">
                         <div>
                           <h4 className="font-medium text-gray-700">Job Recommendations</h4>
@@ -478,7 +433,7 @@ export default function ProfilePage() {
                           <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
                         </label>
                       </div>
-                      
+
                       <div className="flex items-center justify-between">
                         <div>
                           <h4 className="font-medium text-gray-700">Marketing Emails</h4>
@@ -491,10 +446,10 @@ export default function ProfilePage() {
                       </div>
                     </div>
                   </div>
-                  
+
                   <div className="border-t border-gray-200 pt-8">
                     <h3 className="text-lg font-medium text-gray-800 mb-4">Display Preferences</h3>
-                    
+
                     <div className="space-y-4">
                       <div>
                         <label htmlFor="theme" className="block text-sm font-medium text-gray-700 mb-1">
@@ -506,7 +461,7 @@ export default function ProfilePage() {
                           <option value="dark">Dark</option>
                         </select>
                       </div>
-                      
+
                       <div>
                         <label htmlFor="language" className="block text-sm font-medium text-gray-700 mb-1">
                           Language
@@ -521,7 +476,7 @@ export default function ProfilePage() {
                       </div>
                     </div>
                   </div>
-                  
+
                   <div className="flex justify-end">
                     <button
                       type="button"
@@ -535,7 +490,6 @@ export default function ProfilePage() {
             </div>
           )}
         </div>
-      </main>
-    </div>
+    </Layout>
   );
 }

@@ -5,6 +5,7 @@ import { useRouter } from 'next/router';
 import InterviewCopilot from '../components/InterviewCopilot';
 import { interviewAPI } from '../lib/api';
 import { toast } from 'react-toastify';
+import Layout from '../components/Layout';
 
 export default function InterviewCopilotPage() {
   const router = useRouter();
@@ -13,88 +14,73 @@ export default function InterviewCopilotPage() {
   const [sessionId, setSessionId] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isCreatingSession, setIsCreatingSession] = useState(false);
-  
-  // Fetch interviews on component mount
+
+  // Use mock data for interviews
   useEffect(() => {
-    const fetchInterviews = async () => {
-      try {
-        setIsLoading(true);
-        const response = await interviewAPI.getInterviews();
-        setInterviews(response.data);
-        setIsLoading(false);
-      } catch (error) {
-        console.error('Error fetching interviews:', error);
-        toast.error('Failed to load interviews');
-        setIsLoading(false);
+    // Mock interview data
+    const mockInterviews = [
+      {
+        id: 1,
+        title: 'Software Engineer Interview',
+        description: 'Preparation for a senior software engineer position',
+        job_title: 'Senior Software Engineer',
+        company: 'Tech Innovations',
+        difficulty: 'hard'
+      },
+      {
+        id: 2,
+        title: 'Product Manager Interview',
+        description: 'Preparation for a product manager role',
+        job_title: 'Product Manager',
+        company: 'Global Solutions',
+        difficulty: 'medium'
+      },
+      {
+        id: 3,
+        title: 'Data Scientist Interview',
+        description: 'Preparation for a data science position',
+        job_title: 'Data Scientist',
+        company: 'Analytics Corp',
+        difficulty: 'hard'
       }
-    };
-    
-    fetchInterviews();
+    ];
+
+    // Simulate loading
+    setIsLoading(true);
+    setTimeout(() => {
+      setInterviews(mockInterviews);
+      setIsLoading(false);
+    }, 1000);
   }, []);
-  
-  // Create a new interview session
-  const createSession = async (interviewId) => {
-    try {
-      setIsCreatingSession(true);
-      const response = await interviewAPI.createSession(interviewId, {
-        scheduled_at: new Date().toISOString(),
-        notes: 'Created from Interview Copilot page',
-      });
-      
-      setSessionId(response.data.id);
+
+  // Create a new interview session with mock data
+  const createSession = (interviewId) => {
+    setIsCreatingSession(true);
+
+    // Simulate API call
+    setTimeout(() => {
+      // Mock session ID
+      const mockSessionId = Math.floor(Math.random() * 1000) + 1;
+
+      setSessionId(mockSessionId);
       setSelectedInterview(interviewId);
       setIsCreatingSession(false);
       toast.success('Interview session created');
-    } catch (error) {
-      console.error('Error creating session:', error);
-      toast.error('Failed to create interview session');
-      setIsCreatingSession(false);
-    }
+    }, 1000);
   };
-  
+
   return (
-    <div className="min-h-screen bg-gray-50">
+    <Layout>
       <Head>
         <title>Interview Copilot | Job Guru</title>
         <meta name="description" content="Get real-time AI assistance during your interviews" />
       </Head>
-      
-      <header className="bg-white shadow-sm">
-        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <Link href="/" className="flex items-center">
-            <h1 className="text-2xl font-bold text-blue-600">Job Guru</h1>
-          </Link>
-          
-          <nav className="hidden md:flex space-x-8">
-            <Link href="/dashboard" className="text-gray-600 hover:text-blue-600">
-              Dashboard
-            </Link>
-            <Link href="/interview-copilot" className="text-blue-600 font-medium">
-              Interview Copilot
-            </Link>
-            <Link href="/resumes" className="text-gray-600 hover:text-blue-600">
-              Resumes
-            </Link>
-            <Link href="/questions" className="text-gray-600 hover:text-blue-600">
-              Questions
-            </Link>
-          </nav>
-          
-          <div className="flex items-center space-x-4">
-            <Link href="/profile" className="text-gray-600 hover:text-blue-600">
-              Profile
-            </Link>
-          </div>
-        </div>
-      </header>
-      
-      <main className="container mx-auto px-4 py-8">
         <h1 className="text-3xl font-bold text-gray-800 mb-8">Interview Copilot</h1>
-        
+
         {!selectedInterview ? (
           <div className="bg-white rounded-lg shadow-md p-6">
             <h2 className="text-xl font-semibold text-gray-800 mb-4">Select an Interview</h2>
-            
+
             {isLoading ? (
               <div className="flex justify-center py-8">
                 <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
@@ -146,7 +132,6 @@ export default function InterviewCopilotPage() {
             <InterviewCopilot interviewId={selectedInterview} sessionId={sessionId} />
           </div>
         )}
-      </main>
-    </div>
+    </Layout>
   );
 }

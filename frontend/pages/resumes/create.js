@@ -6,6 +6,7 @@ import { useForm } from 'react-hook-form';
 import ResumeBuilder from '../../components/ResumeBuilder';
 import { resumeAPI } from '../../lib/api';
 import { toast } from 'react-toastify';
+import Layout from '../../components/Layout';
 
 export default function CreateResumePage() {
   const router = useRouter();
@@ -13,7 +14,7 @@ export default function CreateResumePage() {
   const { register, handleSubmit, formState: { errors } } = useForm();
   const [step, setStep] = useState(1);
   const [resumeId, setResumeId] = useState(null);
-  
+
   const onSubmitBasicInfo = async (data) => {
     try {
       setIsLoading(true);
@@ -28,7 +29,7 @@ export default function CreateResumePage() {
       setIsLoading(false);
     }
   };
-  
+
   const handleSaveResume = async (resumeData) => {
     try {
       setIsLoading(true);
@@ -38,7 +39,7 @@ export default function CreateResumePage() {
         format: resumeData.format,
         is_active: true
       });
-      
+
       toast.success('Resume saved successfully!');
       router.push(`/resumes/${resumeId}`);
     } catch (error) {
@@ -47,44 +48,13 @@ export default function CreateResumePage() {
       setIsLoading(false);
     }
   };
-  
+
   return (
-    <div className="min-h-screen bg-gray-50">
+    <Layout>
       <Head>
         <title>Create Resume | Job Guru</title>
         <meta name="description" content="Create a new resume with our AI-powered resume builder" />
       </Head>
-      
-      <header className="bg-white shadow-sm">
-        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <Link href="/" className="flex items-center">
-            <h1 className="text-2xl font-bold text-blue-600">Job Guru</h1>
-          </Link>
-          
-          <nav className="hidden md:flex space-x-8">
-            <Link href="/dashboard" className="text-gray-600 hover:text-blue-600">
-              Dashboard
-            </Link>
-            <Link href="/interview-copilot" className="text-gray-600 hover:text-blue-600">
-              Interview Copilot
-            </Link>
-            <Link href="/resumes" className="text-blue-600 font-medium">
-              Resumes
-            </Link>
-            <Link href="/questions" className="text-gray-600 hover:text-blue-600">
-              Questions
-            </Link>
-          </nav>
-          
-          <div className="flex items-center space-x-4">
-            <Link href="/profile" className="text-gray-600 hover:text-blue-600">
-              Profile
-            </Link>
-          </div>
-        </div>
-      </header>
-      
-      <main className="container mx-auto px-4 py-8">
         <div className="mb-8">
           <Link href="/resumes" className="text-blue-600 hover:text-blue-800 flex items-center">
             <svg className="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -93,13 +63,13 @@ export default function CreateResumePage() {
             Back to Resumes
           </Link>
         </div>
-        
+
         <h1 className="text-3xl font-bold text-gray-800 mb-8">Create New Resume</h1>
-        
+
         {step === 1 ? (
           <div className="bg-white rounded-lg shadow-md p-6 max-w-2xl mx-auto">
             <h2 className="text-xl font-semibold text-gray-800 mb-6">Basic Information</h2>
-            
+
             <form onSubmit={handleSubmit(onSubmitBasicInfo)} className="space-y-6">
               <div>
                 <label className="form-label">Resume Title</label>
@@ -111,7 +81,7 @@ export default function CreateResumePage() {
                 />
                 {errors.title && <p className="text-red-500 text-sm mt-1">{errors.title.message}</p>}
               </div>
-              
+
               <div>
                 <label className="form-label">Description (Optional)</label>
                 <textarea
@@ -120,7 +90,7 @@ export default function CreateResumePage() {
                   {...register('description')}
                 />
               </div>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="form-label">Target Job Title</label>
@@ -131,7 +101,7 @@ export default function CreateResumePage() {
                     {...register('target_job')}
                   />
                 </div>
-                
+
                 <div>
                   <label className="form-label">Target Company (Optional)</label>
                   <input
@@ -142,7 +112,7 @@ export default function CreateResumePage() {
                   />
                 </div>
               </div>
-              
+
               <div>
                 <label className="form-label">Industry</label>
                 <select className="input-field" {...register('industry')}>
@@ -159,7 +129,7 @@ export default function CreateResumePage() {
                   <option value="Other">Other</option>
                 </select>
               </div>
-              
+
               <div className="flex justify-end">
                 <button
                   type="submit"
@@ -174,7 +144,6 @@ export default function CreateResumePage() {
         ) : (
           <ResumeBuilder resumeId={resumeId} onSave={handleSaveResume} />
         )}
-      </main>
-    </div>
+    </Layout>
   );
 }

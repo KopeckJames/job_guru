@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { questionAPI } from '../../lib/api';
 import { toast } from 'react-toastify';
+import Layout from '../../components/Layout';
 
 export default function QuestionsPage() {
   const router = useRouter();
@@ -18,7 +19,7 @@ export default function QuestionsPage() {
   const [selectedQuestion, setSelectedQuestion] = useState(null);
   const [aiAnswer, setAiAnswer] = useState(null);
   const [isGeneratingAnswer, setIsGeneratingAnswer] = useState(false);
-  
+
   // Mock data for categories and questions
   useEffect(() => {
     const mockCategories = [
@@ -28,7 +29,7 @@ export default function QuestionsPage() {
       { id: 4, name: 'Leadership', description: 'Questions about your leadership experience and style' },
       { id: 5, name: 'Problem Solving', description: 'Questions testing your problem-solving abilities' }
     ];
-    
+
     const mockQuestions = [
       {
         id: 1,
@@ -87,41 +88,41 @@ export default function QuestionsPage() {
         created_at: '2023-05-22T11:45:00Z'
       }
     ];
-    
+
     setCategories(mockCategories);
     setQuestions(mockQuestions);
     setIsLoading(false);
   }, []);
-  
+
   const getCategoryName = (categoryId) => {
     const category = categories.find(cat => cat.id === categoryId);
     return category ? category.name : 'Unknown';
   };
-  
+
   const handleFilterChange = (e) => {
     const { name, value } = e.target;
     setFilters(prev => ({ ...prev, [name]: value }));
   };
-  
+
   const filteredQuestions = questions.filter(question => {
     const matchesCategory = !filters.category || question.category_id === parseInt(filters.category);
     const matchesDifficulty = !filters.difficulty || question.difficulty === filters.difficulty;
-    const matchesSearch = !filters.search || 
+    const matchesSearch = !filters.search ||
       question.text.toLowerCase().includes(filters.search.toLowerCase());
-    
+
     return matchesCategory && matchesDifficulty && matchesSearch;
   });
-  
+
   const handleSelectQuestion = (question) => {
     setSelectedQuestion(question);
     setAiAnswer(null);
   };
-  
+
   const handleGenerateAnswer = async () => {
     if (!selectedQuestion) return;
-    
+
     setIsGeneratingAnswer(true);
-    
+
     try {
       // In a real implementation, this would call the API
       // const response = await questionAPI.generateAnswer(selectedQuestion.id, {
@@ -129,20 +130,20 @@ export default function QuestionsPage() {
       //   experience_level: 'mid-level',
       //   job_title: 'Software Engineer'
       // });
-      
+
       // Mock AI-generated answer
       await new Promise(resolve => setTimeout(resolve, 2000));
-      
+
       const mockAnswers = {
         1: "When dealing with a difficult team member, I first try to understand their perspective and the root cause of any issues. In one situation at my previous job, a team member was consistently missing deadlines and seemed disengaged. Instead of escalating immediately, I scheduled a private conversation to check if everything was okay. I discovered they were dealing with some personal challenges that were affecting their work. We worked together to create a temporary adjustment to their workload and connected them with company resources for support. I also made sure to provide clear expectations and regular check-ins. Within a few weeks, their performance improved significantly. This experience taught me the importance of empathy, clear communication, and addressing issues directly but compassionately.",
-        
+
         2: "A process is an instance of a program that is being executed, while a thread is a flow of execution within a process. The key differences include:\n\n1. Memory allocation: Processes have separate memory spaces, while threads share the memory space of their parent process.\n\n2. Communication: Inter-process communication is more complex and requires mechanisms like pipes or sockets, while threads can communicate directly through shared memory.\n\n3. Context switching: Switching between processes is more expensive than switching between threads because the operating system needs to save and load more state information.\n\n4. Resource ownership: Processes own resources like file handles, while threads share the resources of their process.\n\n5. Fault isolation: A crash in one process doesn't affect other processes, but a crash in one thread can bring down all threads in that process.\n\nProcesses provide better security and stability through isolation, while threads offer better performance for tasks that benefit from shared memory and communication.",
-        
+
         3: "When facing a project deadline that my team is falling behind on, I would take the following steps:\n\n1. Assess the situation: Understand exactly how far behind we are and identify the critical bottlenecks.\n\n2. Communicate transparently: Inform stakeholders about the situation early rather than waiting until the last minute.\n\n3. Prioritize ruthlessly: Focus on must-have features and identify what can be deferred to a later release.\n\n4. Reallocate resources: Assign more team members to critical path items and remove obstacles that are slowing progress.\n\n5. Consider process improvements: Look for inefficiencies in our workflow that could be streamlined.\n\n6. Evaluate options: Present stakeholders with realistic options, such as extending the deadline, reducing scope, or adding resources.\n\n7. Create a recovery plan: Develop a detailed plan with specific actions, owners, and milestones to get back on track.\n\n8. Monitor closely: Implement more frequent check-ins to catch any new issues quickly.\n\nI believe in being proactive and transparent when challenges arise, while focusing on solutions rather than blame."
       };
-      
+
       setAiAnswer(mockAnswers[selectedQuestion.id] || "I would approach this question by first understanding the key requirements and expectations. Then, I would draw from my relevant experience to provide a structured and thoughtful response that demonstrates my skills and problem-solving abilities. I would make sure to include specific examples where possible and connect my answer to the value I could bring to the organization.");
-      
+
       setIsGeneratingAnswer(false);
     } catch (error) {
       console.error('Error generating answer:', error);
@@ -150,55 +151,24 @@ export default function QuestionsPage() {
       setIsGeneratingAnswer(false);
     }
   };
-  
+
   return (
-    <div className="min-h-screen bg-gray-50">
+    <Layout>
       <Head>
         <title>Question Bank | Job Guru</title>
         <meta name="description" content="Practice with common interview questions" />
       </Head>
-      
-      <header className="bg-white shadow-sm">
-        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <Link href="/" className="flex items-center">
-            <h1 className="text-2xl font-bold text-blue-600">Job Guru</h1>
-          </Link>
-          
-          <nav className="hidden md:flex space-x-8">
-            <Link href="/dashboard" className="text-gray-600 hover:text-blue-600">
-              Dashboard
-            </Link>
-            <Link href="/interview-copilot" className="text-gray-600 hover:text-blue-600">
-              Interview Copilot
-            </Link>
-            <Link href="/resumes" className="text-gray-600 hover:text-blue-600">
-              Resumes
-            </Link>
-            <Link href="/questions" className="text-blue-600 font-medium">
-              Questions
-            </Link>
-          </nav>
-          
-          <div className="flex items-center space-x-4">
-            <Link href="/profile" className="text-gray-600 hover:text-blue-600">
-              Profile
-            </Link>
-          </div>
-        </div>
-      </header>
-      
-      <main className="container mx-auto px-4 py-8">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold text-gray-800">Question Bank</h1>
           <Link href="/questions/create" className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">
             Add Question
           </Link>
         </div>
-        
+
         {/* Filters */}
         <div className="bg-white rounded-lg shadow-md p-6 mb-8">
           <h2 className="text-lg font-semibold text-gray-800 mb-4">Filters</h2>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div>
               <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-1">
@@ -219,7 +189,7 @@ export default function QuestionsPage() {
                 ))}
               </select>
             </div>
-            
+
             <div>
               <label htmlFor="difficulty" className="block text-sm font-medium text-gray-700 mb-1">
                 Difficulty
@@ -237,7 +207,7 @@ export default function QuestionsPage() {
                 <option value="hard">Hard</option>
               </select>
             </div>
-            
+
             <div>
               <label htmlFor="search" className="block text-sm font-medium text-gray-700 mb-1">
                 Search
@@ -254,7 +224,7 @@ export default function QuestionsPage() {
             </div>
           </div>
         </div>
-        
+
         {/* Questions and Answer */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Questions List */}
@@ -263,7 +233,7 @@ export default function QuestionsPage() {
               <div className="px-6 py-4 border-b border-gray-200">
                 <h2 className="text-lg font-semibold text-gray-800">Questions</h2>
               </div>
-              
+
               {isLoading ? (
                 <div className="flex justify-center py-12">
                   <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
@@ -301,14 +271,14 @@ export default function QuestionsPage() {
               )}
             </div>
           </div>
-          
+
           {/* Question Detail and Answer */}
           <div className="lg:col-span-2">
             <div className="bg-white rounded-lg shadow-md overflow-hidden">
               <div className="px-6 py-4 border-b border-gray-200">
                 <h2 className="text-lg font-semibold text-gray-800">Question & AI Answer</h2>
               </div>
-              
+
               {selectedQuestion ? (
                 <div className="p-6">
                   <div className="mb-6">
@@ -326,7 +296,7 @@ export default function QuestionsPage() {
                       </span>
                     </div>
                   </div>
-                  
+
                   <div className="mb-6">
                     <div className="flex justify-between items-center mb-4">
                       <h4 className="font-semibold text-gray-800">AI-Generated Answer</h4>
@@ -338,7 +308,7 @@ export default function QuestionsPage() {
                         {isGeneratingAnswer ? 'Generating...' : aiAnswer ? 'Regenerate Answer' : 'Generate Answer'}
                       </button>
                     </div>
-                    
+
                     {isGeneratingAnswer ? (
                       <div className="flex justify-center py-8">
                         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500"></div>
@@ -355,7 +325,7 @@ export default function QuestionsPage() {
                       </div>
                     )}
                   </div>
-                  
+
                   <div>
                     <h4 className="font-semibold text-gray-800 mb-4">Tips for Answering</h4>
                     <div className="bg-blue-50 p-6 rounded-lg">
@@ -379,7 +349,6 @@ export default function QuestionsPage() {
             </div>
           </div>
         </div>
-      </main>
-    </div>
+    </Layout>
   );
 }

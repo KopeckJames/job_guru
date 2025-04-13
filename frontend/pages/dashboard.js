@@ -3,15 +3,18 @@ import Head from 'next/head';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { toast } from 'react-toastify';
+import Layout from '../components/Layout';
+import { useAuth } from '../lib/authContext';
 
 export default function DashboardPage() {
   const router = useRouter();
+  const { user } = useAuth();
   const [userData, setUserData] = useState({
-    name: 'John Doe',
-    email: 'john@example.com',
-    profilePicture: null
+    name: user ? `${user.firstName} ${user.lastName}` : 'John Doe',
+    email: user ? user.email : 'john@example.com',
+    profilePicture: user?.profilePicture || null
   });
-  
+
   const [stats, setStats] = useState({
     interviews: {
       total: 12,
@@ -30,7 +33,7 @@ export default function DashboardPage() {
     },
     practiceHours: 6.5
   });
-  
+
   const [recentActivity, setRecentActivity] = useState([
     {
       id: 1,
@@ -64,7 +67,7 @@ export default function DashboardPage() {
       duration: 45
     }
   ]);
-  
+
   const [upcomingInterviews, setUpcomingInterviews] = useState([
     {
       id: 1,
@@ -83,7 +86,7 @@ export default function DashboardPage() {
       preparationStatus: 40
     }
   ]);
-  
+
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('en-US', {
@@ -92,7 +95,7 @@ export default function DashboardPage() {
       year: 'numeric'
     });
   };
-  
+
   const formatTime = (dateString) => {
     const date = new Date(dateString);
     return date.toLocaleTimeString('en-US', {
@@ -100,44 +103,13 @@ export default function DashboardPage() {
       minute: '2-digit'
     });
   };
-  
+
   return (
-    <div className="min-h-screen bg-gray-50">
+    <Layout>
       <Head>
         <title>Dashboard | Job Guru</title>
         <meta name="description" content="Your personal dashboard for interview preparation" />
       </Head>
-      
-      <header className="bg-white shadow-sm">
-        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <Link href="/" className="flex items-center">
-            <h1 className="text-2xl font-bold text-blue-600">Job Guru</h1>
-          </Link>
-          
-          <nav className="hidden md:flex space-x-8">
-            <Link href="/dashboard" className="text-blue-600 font-medium">
-              Dashboard
-            </Link>
-            <Link href="/interview-copilot" className="text-gray-600 hover:text-blue-600">
-              Interview Copilot
-            </Link>
-            <Link href="/resumes" className="text-gray-600 hover:text-blue-600">
-              Resumes
-            </Link>
-            <Link href="/questions" className="text-gray-600 hover:text-blue-600">
-              Questions
-            </Link>
-          </nav>
-          
-          <div className="flex items-center space-x-4">
-            <Link href="/profile" className="text-gray-600 hover:text-blue-600">
-              Profile
-            </Link>
-          </div>
-        </div>
-      </header>
-      
-      <main className="container mx-auto px-4 py-8">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold text-gray-800">Dashboard</h1>
           <div className="flex space-x-4">
@@ -149,7 +121,7 @@ export default function DashboardPage() {
             </Link>
           </div>
         </div>
-        
+
         {/* Welcome Card */}
         <div className="bg-white rounded-lg shadow-md p-6 mb-8">
           <div className="flex items-center">
@@ -174,7 +146,7 @@ export default function DashboardPage() {
             </div>
           </div>
         </div>
-        
+
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <div className="bg-white rounded-lg shadow-md p-6">
@@ -193,7 +165,7 @@ export default function DashboardPage() {
               </div>
             </div>
           </div>
-          
+
           <div className="bg-white rounded-lg shadow-md p-6">
             <div className="flex justify-between items-start mb-4">
               <h3 className="text-lg font-semibold text-gray-800">Resumes</h3>
@@ -206,7 +178,7 @@ export default function DashboardPage() {
               </div>
             </div>
           </div>
-          
+
           <div className="bg-white rounded-lg shadow-md p-6">
             <div className="flex justify-between items-start mb-4">
               <h3 className="text-lg font-semibold text-gray-800">Applications</h3>
@@ -223,7 +195,7 @@ export default function DashboardPage() {
               </div>
             </div>
           </div>
-          
+
           <div className="bg-white rounded-lg shadow-md p-6">
             <div className="flex justify-between items-start mb-4">
               <h3 className="text-lg font-semibold text-gray-800">Practice</h3>
@@ -237,7 +209,7 @@ export default function DashboardPage() {
             </div>
           </div>
         </div>
-        
+
         {/* Main Content */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Upcoming Interviews */}
@@ -246,7 +218,7 @@ export default function DashboardPage() {
               <div className="px-6 py-4 border-b border-gray-200">
                 <h3 className="text-lg font-semibold text-gray-800">Upcoming Interviews</h3>
               </div>
-              
+
               {upcomingInterviews.length > 0 ? (
                 <div className="divide-y divide-gray-200">
                   {upcomingInterviews.map((interview) => (
@@ -261,21 +233,21 @@ export default function DashboardPage() {
                           <div className="text-sm text-gray-600">{formatTime(interview.date)}</div>
                         </div>
                       </div>
-                      
+
                       <div className="flex justify-between items-center mb-4">
                         <span className="text-sm text-gray-600">{interview.type}</span>
                         <span className="text-sm font-medium text-blue-600">
                           Preparation: {interview.preparationStatus}%
                         </span>
                       </div>
-                      
+
                       <div className="w-full bg-gray-200 rounded-full h-2.5">
                         <div
                           className="bg-blue-600 h-2.5 rounded-full"
                           style={{ width: `${interview.preparationStatus}%` }}
                         ></div>
                       </div>
-                      
+
                       <div className="mt-4 flex justify-end space-x-4">
                         <button
                           onClick={() => router.push(`/interviews/${interview.id}/prepare`)}
@@ -301,7 +273,7 @@ export default function DashboardPage() {
                   </Link>
                 </div>
               )}
-              
+
               <div className="px-6 py-4 bg-gray-50 border-t border-gray-200">
                 <Link href="/interviews" className="text-blue-600 hover:text-blue-800 text-sm">
                   View all interviews →
@@ -309,14 +281,14 @@ export default function DashboardPage() {
               </div>
             </div>
           </div>
-          
+
           {/* Recent Activity */}
           <div>
             <div className="bg-white rounded-lg shadow-md overflow-hidden">
               <div className="px-6 py-4 border-b border-gray-200">
                 <h3 className="text-lg font-semibold text-gray-800">Recent Activity</h3>
               </div>
-              
+
               {recentActivity.length > 0 ? (
                 <div className="divide-y divide-gray-200">
                   {recentActivity.map((activity) => (
@@ -335,21 +307,21 @@ export default function DashboardPage() {
                           <p className="text-sm text-gray-500 mb-2">
                             {formatDate(activity.date)} at {formatTime(activity.date)}
                           </p>
-                          
+
                           {activity.status === 'completed' && activity.score && (
                             <div className="text-sm">
                               <span className="text-gray-600">Score: </span>
                               <span className="font-medium text-blue-600">{activity.score}/5</span>
                             </div>
                           )}
-                          
+
                           {activity.status === 'updated' && activity.atsScore && (
                             <div className="text-sm">
                               <span className="text-gray-600">ATS Score: </span>
                               <span className="font-medium text-green-600">{activity.atsScore}%</span>
                             </div>
                           )}
-                          
+
                           {activity.status === 'completed' && activity.duration && (
                             <div className="text-sm">
                               <span className="text-gray-600">Duration: </span>
@@ -367,29 +339,29 @@ export default function DashboardPage() {
                 </div>
               )}
             </div>
-            
+
             {/* Quick Actions */}
             <div className="bg-white rounded-lg shadow-md overflow-hidden mt-6">
               <div className="px-6 py-4 border-b border-gray-200">
                 <h3 className="text-lg font-semibold text-gray-800">Quick Actions</h3>
               </div>
-              
+
               <div className="p-6 grid grid-cols-2 gap-4">
                 <Link href="/resumes/create" className="text-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
                   <div className="text-2xl mb-2">📄</div>
                   <div className="text-sm font-medium text-gray-800">Create Resume</div>
                 </Link>
-                
+
                 <Link href="/mock-interview" className="text-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
                   <div className="text-2xl mb-2">🎙️</div>
                   <div className="text-sm font-medium text-gray-800">Mock Interview</div>
                 </Link>
-                
+
                 <Link href="/questions" className="text-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
                   <div className="text-2xl mb-2">❓</div>
                   <div className="text-sm font-medium text-gray-800">Practice Questions</div>
                 </Link>
-                
+
                 <Link href="/applications" className="text-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
                   <div className="text-2xl mb-2">🔍</div>
                   <div className="text-sm font-medium text-gray-800">Job Search</div>
@@ -398,7 +370,6 @@ export default function DashboardPage() {
             </div>
           </div>
         </div>
-      </main>
-    </div>
+    </Layout>
   );
 }

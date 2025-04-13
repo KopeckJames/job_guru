@@ -5,30 +5,27 @@ import { useRouter } from 'next/router';
 import { useForm } from 'react-hook-form';
 import { authAPI } from '../lib/api';
 import { toast } from 'react-toastify';
+import { useAuth } from '../lib/authContext';
 
 export default function LoginPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const { register, handleSubmit, formState: { errors } } = useForm();
-  
+  const { login } = useAuth();
+
   const onSubmit = async (data) => {
     try {
       setIsLoading(true);
-      
-      // In a real implementation, this would call the API
-      // const response = await authAPI.login({
-      //   username: data.email,
-      //   password: data.password
-      // });
-      
-      // Mock successful login
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Store token in localStorage
-      localStorage.setItem('token', 'mock-token');
-      
-      toast.success('Login successful!');
-      router.push('/dashboard');
+
+      // Use the login function from auth context
+      const success = await login(data.email, data.password);
+
+      if (success) {
+        toast.success('Login successful!');
+        router.push('/dashboard');
+      } else {
+        toast.error('Invalid email or password');
+      }
     } catch (error) {
       console.error('Login error:', error);
       toast.error('Invalid email or password');
@@ -36,14 +33,14 @@ export default function LoginPage() {
       setIsLoading(false);
     }
   };
-  
+
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <Head>
         <title>Login | Job Guru</title>
         <meta name="description" content="Log in to your Job Guru account" />
       </Head>
-      
+
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <Link href="/" className="flex justify-center">
           <h1 className="text-3xl font-bold text-blue-600">Job Guru</h1>
@@ -58,7 +55,7 @@ export default function LoginPage() {
           </Link>
         </p>
       </div>
-      
+
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
           <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
@@ -85,7 +82,7 @@ export default function LoginPage() {
                 )}
               </div>
             </div>
-            
+
             <div>
               <label htmlFor="password" className="block text-sm font-medium text-gray-700">
                 Password
@@ -109,7 +106,7 @@ export default function LoginPage() {
                 )}
               </div>
             </div>
-            
+
             <div className="flex items-center justify-between">
               <div className="flex items-center">
                 <input
@@ -121,14 +118,14 @@ export default function LoginPage() {
                   Remember me
                 </label>
               </div>
-              
+
               <div className="text-sm">
                 <Link href="/forgot-password" className="font-medium text-blue-600 hover:text-blue-500">
                   Forgot your password?
                 </Link>
               </div>
             </div>
-            
+
             <div>
               <button
                 type="submit"
@@ -139,7 +136,7 @@ export default function LoginPage() {
               </button>
             </div>
           </form>
-          
+
           <div className="mt-6">
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
@@ -149,7 +146,7 @@ export default function LoginPage() {
                 <span className="px-2 bg-white text-gray-500">Or continue with</span>
               </div>
             </div>
-            
+
             <div className="mt-6 grid grid-cols-2 gap-3">
               <div>
                 <button
@@ -165,7 +162,7 @@ export default function LoginPage() {
                   </svg>
                 </button>
               </div>
-              
+
               <div>
                 <button
                   type="button"
