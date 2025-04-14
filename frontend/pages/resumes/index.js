@@ -11,13 +11,42 @@ export default function ResumesPage() {
   const [resumes, setResumes] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Fetch resumes on component mount
+  // Fetch resumes from local storage on component mount
   useEffect(() => {
-    const fetchResumes = async () => {
+    const fetchResumes = () => {
       try {
         setIsLoading(true);
-        const response = await resumeAPI.getResumes();
-        setResumes(response.data);
+
+        // Get resumes from local storage
+        const storedResumes = JSON.parse(localStorage.getItem('resumes') || '[]');
+
+        // If no resumes in local storage, use mock data
+        if (storedResumes.length === 0) {
+          // Mock resume data
+          const mockResumes = [
+            {
+              id: 1,
+              title: 'Software Engineer Resume',
+              description: 'Resume for tech companies',
+              target_job: 'Software Engineer',
+              ats_score: 85,
+              created_at: '2023-05-15T10:30:00Z'
+            },
+            {
+              id: 2,
+              title: 'Product Manager Resume',
+              description: 'Resume for product roles',
+              target_job: 'Product Manager',
+              ats_score: 78,
+              created_at: '2023-06-20T14:45:00Z'
+            }
+          ];
+
+          setResumes(mockResumes);
+        } else {
+          setResumes(storedResumes);
+        }
+
         setIsLoading(false);
       } catch (error) {
         console.error('Error fetching resumes:', error);
@@ -33,12 +62,18 @@ export default function ResumesPage() {
     if (!confirm('Are you sure you want to delete this resume?')) return;
 
     try {
-      // In a real implementation, this would call an API to delete the resume
-      // await resumeAPI.deleteResume(id);
+      // Get existing resumes from local storage
+      const storedResumes = JSON.parse(localStorage.getItem('resumes') || '[]');
 
-      // For now, just remove it from the state
+      // Filter out the resume to delete
+      const updatedResumes = storedResumes.filter(resume => resume.id !== id);
+
+      // Save updated resumes back to local storage
+      localStorage.setItem('resumes', JSON.stringify(updatedResumes));
+
+      // Update state
       setResumes(resumes.filter(resume => resume.id !== id));
-      toast.success('Resume deleted');
+      toast.success('Resume deleted successfully');
     } catch (error) {
       console.error('Error deleting resume:', error);
       toast.error('Failed to delete resume');
@@ -98,7 +133,7 @@ export default function ResumesPage() {
                     <Link href={`/resumes/${resume.id}`} className="text-blue-600 hover:text-blue-800">
                       View
                     </Link>
-                    <Link href={`/resumes/${resume.id}/edit`} className="text-blue-600 hover:text-blue-800">
+                    <Link href={`/resumes/edit/${resume.id}`} className="text-blue-600 hover:text-blue-800">
                       Edit
                     </Link>
                   </div>
